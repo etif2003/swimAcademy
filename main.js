@@ -4,7 +4,7 @@ import { connectDB } from "./db/db.js";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 
-import courseRoutes from "./routes/course.js";
+import courseRoutes from "./routes/Course.js";
 
 
 const port = process.env.PORT || 4000;
