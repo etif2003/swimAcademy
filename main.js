@@ -4,7 +4,7 @@ import { connectDB } from "./db/db.js";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 const mongoURI = process.env.MONGO_URI || "";
 const app = express();
 
