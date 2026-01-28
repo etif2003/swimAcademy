@@ -4,7 +4,8 @@ import { connectDB } from "./db/db.js";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 
-import courseRoutes from "routes/courseRoutes.js";
+import courseRoutes from "./routes/course.js";
+
 
 const port = process.env.PORT || 3000;
 const mongoURI = process.env.MONGO_URI || "";
