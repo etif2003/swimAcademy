@@ -4,12 +4,17 @@ import { connectDB } from "./db/db.js";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 
+import courseRoutes from "routes/courseRoutes.js";
+
 const port = process.env.PORT || 4000;
 const mongoURI = process.env.MONGO_URI || "";
 const app = express();
 
 app.use(express.json());
 app.use(cors());
+
+// ROUTES
+app.use("/api/courses", courseRoutes);
 
 // -------------------- START SERVER -------------------- //
 const startServer = async () => {
