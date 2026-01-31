@@ -1,123 +1,97 @@
 import {
   createCourseService,
-  deleteAllCoursesService,
-  deleteCourseByIdService,
   getAllCoursesService,
   getCourseByIdService,
-  insertAllCoursesService,
-  readCourseFromFileService,
-  saveCourseService,
-  updateCourseByIdService,
+  getCoursesByCreatorService,
+  updateCourseService,
+  deleteCourseService,
 } from "../services/Course.js";
 
 import { serverResponse } from "../utils/server-response.js";
 
+/* =====================
+   CREATE COURSE
+===================== */
+export const createCourseController = async (req, res) => {
+  try {
+    const course = await createCourseService(req.body);
+    serverResponse(res, 201, course);
+  } catch (err) {
+    serverResponse(res, 400, { message: err.message });
+  }
+};
+
+/* =====================
+   GET ALL COURSES
+===================== */
 export const getAllCoursesController = async (req, res) => {
   try {
     const courses = await getAllCoursesService();
-    return serverResponse(res, 200, courses);
-  } catch (error) {
-    return res.status(500).json({
-      message: "Error finding courses",
-      error: error.message,
-    });
+    serverResponse(res, 200, courses);
+  } catch (err) {
+    serverResponse(res, 400, { message: err.message });
   }
 };
 
+/* =====================
+   GET COURSE BY ID
+===================== */
 export const getCourseByIdController = async (req, res) => {
   try {
-    const course = await getCourseByIdService(req.params.id);
-
-    if (!course) {
-      return serverResponse(res, 404, "Course not found");
-    }
-
-    return serverResponse(res, 200, course);
-  } catch (error) {
-    return res.status(500).json({
-      message: "Error finding course",
-      error: error.message,
-    });
+    const { id } = req.params;
+    const course = await getCourseByIdService(id);
+    serverResponse(res, 200, course);
+  } catch (err) {
+    serverResponse(res, 404, { message: err.message });
   }
 };
 
-export const addCourseController = async (req, res) => {
+/* =====================
+   GET COURSES BY CREATOR
+===================== */
+export const getCoursesByCreatorController = async (req, res) => {
   try {
-    const newCourse = await createCourseService(req.body);
-    const savedCourse = await saveCourseService(newCourse);
-    return serverResponse(res, 201, savedCourse);
-  } catch (error) {
-    return res.status(400).json({
-      message: "Error creating course",
-      error: error.message,
+    const { creatorId, creatorType } = req.params;
+
+    const courses = await getCoursesByCreatorService({
+      creatorId,
+      creatorType,
     });
+
+    serverResponse(res, 200, courses);
+  } catch (err) {
+    serverResponse(res, 400, { message: err.message });
   }
 };
 
-export const deleteCourseController = async (req, res) => {
-  try {
-    const courseToDelete = await deleteCourseByIdService(req.params.id);
-
-    if (!courseToDelete) {
-      return serverResponse(res, 404, "Course not found");
-    }
-
-    return serverResponse(res, 200, courseToDelete);
-  } catch (error) {
-    return res.status(500).json({
-      message: "Error deleting course",
-      error: error.message,
-    });
-  }
-};
-
+/* =====================
+   UPDATE COURSE
+===================== */
 export const updateCourseController = async (req, res) => {
   try {
-    const courseById = await getCourseByIdService(req.params.id);
+    const { id } = req.params;
 
-    if (!courseById) {
-      return serverResponse(res, 404, "Course not found");
-    }
-
-    const updates = { ...req.body };
-    const invalidFields = Object.keys(updates).filter(
-      (key) => !(key in courseById)
+    const updatedCourse = await updateCourseService(
+      id,
+      req.body
     );
 
-    if (invalidFields.length > 0) {
-      return serverResponse(
-        res,
-        400,
-        `Invalid fields to update: ${invalidFields.join(", ")}`
-      );
-    }
-
-    const updatedCourse = await updateCourseByIdService(
-      req.params.id,
-      updates
-    );
-
-    return serverResponse(res, 200, updatedCourse);
-  } catch (error) {
-    return res.status(500).json({
-      message: "Error updating course",
-      error: error.message,
-    });
+    serverResponse(res, 200, updatedCourse);
+  } catch (err) {
+    serverResponse(res, 400, { message: err.message });
   }
 };
 
-export const resetCoursesController = async (req, res) => {
+/* =====================
+   DELETE COURSE
+===================== */
+export const deleteCourseController = async (req, res) => {
   try {
-    const courses = await readCourseFromFileService();
+    const { id } = req.params;
 
-    await deleteAllCoursesService();
-    await insertAllCoursesService(courses);
-
-    return serverResponse(res, 201, courses);
-  } catch (error) {
-    return res.status(500).json({
-      message: "Error resetting courses",
-      error: error.message,
-    });
+    const result = await deleteCourseService(id);
+    serverResponse(res, 200, result);
+  } catch (err) {
+    serverResponse(res, 404, { message: err.message });
   }
 };
