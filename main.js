@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 
 import courseRoutes from "./routes/Course.js";
 import userRoutes from "./routes/user.js";
+import instructorRoutes from "./routes/instructor.js";
 
 
 
@@ -19,6 +20,7 @@ app.use(cors());
 // ROUTES
 app.use("/api/courses", courseRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/instructors", instructorRoutes);
 
 
 // -------------------- START SERVER -------------------- //
