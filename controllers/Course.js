@@ -14,7 +14,22 @@ import { serverResponse } from "../utils/server-response.js";
 ===================== */
 export const createCourseController = async (req, res) => {
   try {
-    const course = await createCourseService(req.body);
+    // רק Instructor או School יכולים ליצור קורס
+    if (!["instructor", "school"].includes(req.user.role)) {
+      return serverResponse(res, 403, {
+        message: "אין הרשאה ליצור קורס",
+      });
+    }
+
+    const course = await createCourseService({
+      ...req.body,
+      creatorId: req.user._id,
+      creatorType:
+        req.user.role === "instructor"
+          ? "Instructor"
+          : "School",
+    });
+
     serverResponse(res, 201, course);
   } catch (err) {
     serverResponse(res, 400, { message: err.message });
@@ -39,7 +54,9 @@ export const getAllCoursesController = async (req, res) => {
 export const getCourseByIdController = async (req, res) => {
   try {
     const { id } = req.params;
+
     const course = await getCourseByIdService(id);
+
     serverResponse(res, 200, course);
   } catch (err) {
     serverResponse(res, 404, { message: err.message });
@@ -73,12 +90,13 @@ export const updateCourseController = async (req, res) => {
 
     const updatedCourse = await updateCourseService(
       id,
-      req.body
+      req.body,
+      req.user
     );
 
     serverResponse(res, 200, updatedCourse);
   } catch (err) {
-    serverResponse(res, 400, { message: err.message });
+    serverResponse(res, 403, { message: err.message });
   }
 };
 
@@ -89,9 +107,13 @@ export const deleteCourseController = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const result = await deleteCourseService(id);
+    const result = await deleteCourseService(
+      id,
+      req.user
+    );
+
     serverResponse(res, 200, result);
   } catch (err) {
-    serverResponse(res, 404, { message: err.message });
+    serverResponse(res, 403, { message: err.message });
   }
 };
