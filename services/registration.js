@@ -45,6 +45,20 @@ export const createRegistrationService = async ({
     throw new Error("המשתמש כבר רשום לקורס זה");
   }
 
+  if (course.status !== "Active") {
+    throw new Error("לא ניתן להירשם לקורס לא פעיל");
+  }
+
+  if (
+    course.maxParticipants &&
+    course.currentParticipants >= course.maxParticipants
+  ) {
+    throw new Error("הקורס מלא");
+  }
+
+  course.currentParticipants += 1;
+  await course.save();
+
   const registration = await Registration.create({
     student: userId,
     course: courseId,
