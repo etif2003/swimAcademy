@@ -2,6 +2,8 @@ import bcrypt from "bcrypt";
 import { User } from "../models/User.js";
 import { generateToken } from "../utils/jwt.js";
 import mongoose from "mongoose";
+import { MESSAGES } from "../utils/constants/messages.js";
+
 
 const allowedRoles = ["Student", "Instructor", "School"];
 
@@ -29,28 +31,27 @@ export const registerUserService = async ({
   role,
 }) => {
   if (!fullName || !email || !phone || !password) {
-    throw new Error("חסרים שדות חובה");
-  }
+    throw new Error(MESSAGES.COMMON.MISSING_FIELDS);  }
 
   if (!isValidEmail(email)) {
-    throw new Error("כתובת האימייל אינה תקינה");
+    throw new Error(MESSAGES.USER.INVALID_EMAIL);
   }
 
   if (!isValidPhone(phone)) {
-    throw new Error("מספר הטלפון אינו תקין");
+    throw new Error(MESSAGES.USER.INVALID_PHONE);
   }
 
   if (!isStrongPassword(password)) {
-    throw new Error("הסיסמה חייבת להכיל לפחות 6 תווים");
+    throw new Error(MESSAGES.USER.WEAK_PASSWORD);
   }
 
   const exists = await User.findOne({ email });
   if (exists) {
-    throw new Error("משתמש עם אימייל זה כבר קיים");
+    throw new Error(MESSAGES.USER.EMAIL_EXISTS);
   }
 
   if (role && !allowedRoles.includes(role)) {
-    throw new Error("תפקיד לא חוקי");
+    throw new Error(MESSAGES.USER.INVALID_ROLE);
   }
 
   const salt = bcrypt.genSaltSync(10);
@@ -76,22 +77,22 @@ export const registerUserService = async ({
 //LOGIN
 export const loginUserService = async ({ email, password }) => {
   if (!email || !password) {
-    throw new Error("יש להזין אימייל וסיסמה");
+    throw new Error(MESSAGES.AUTH.MISSING_CREDENTIALS);
   }
 
   if (!isValidEmail(email)) {
-    throw new Error("כתובת האימייל אינה תקינה");
+    throw new Error(MESSAGES.USER.INVALID_EMAIL);
   }
 
   const user = await User.findOne({ email }).select("+password");
 
   if (!user) {
-    throw new Error("אימייל או סיסמה שגויים");
+    throw new Error(MESSAGES.AUTH.INVALID_CREDENTIALS);
   }
 
   const isMatch = bcrypt.compareSync(password, user.password);
   if (!isMatch) {
-    throw new Error("אימייל או סיסמה שגויים");
+    throw new Error(MESSAGES.AUTH.INVALID_CREDENTIALS);
   }
 
   return {
@@ -110,22 +111,22 @@ export const changePasswordService = async ({
   newPassword,
 }) => {
   if (!currentPassword || !newPassword) {
-    throw new Error("יש להזין סיסמה נוכחית וסיסמה חדשה");
+    throw new Error(MESSAGES.AUTH.MISSING_PASSWORDS);
   }
 
   if (!isStrongPassword(newPassword)) {
-    throw new Error("הסיסמה החדשה חייבת להכיל לפחות 6 תווים");
+    throw new Error(MESSAGES.USER.WEAK_PASSWORD);
   }
 
   const user = await User.findById(userId).select("+password");
   if (!user) {
-    throw new Error("משתמש לא נמצא");
+    throw new Error(MESSAGES.USER.NOT_FOUND);
   }
 
   const isMatch = bcrypt.compareSync(currentPassword, user.password);
 
   if (!isMatch) {
-    throw new Error("הסיסמה הנוכחית שגויה");
+    throw new Error(MESSAGES.AUTH.WRONG_PASSWORD);
   }
 
   const salt = bcrypt.genSaltSync(10);
@@ -134,7 +135,7 @@ export const changePasswordService = async ({
   user.password = hash;
   await user.save();
 
-  return { message: "הסיסמה עודכנה בהצלחה" };
+  return { message: MESSAGES.AUTH.PASSWORD_UPDATED};
 };
 
 //GET ALL USERS
@@ -147,7 +148,7 @@ export const getUserByIdService = async (userId) => {
   const user = await User.findById(userId).select("-password");
 
   if (!user) {
-    throw new Error("משתמש לא נמצא");
+    throw new Error(MESSAGES.USER.NOT_FOUND);
   }
 
   return user;
@@ -156,15 +157,15 @@ export const getUserByIdService = async (userId) => {
 //UPDATE USER
 export const updateUserService = async (userId, data) => {
   if (!userId) {
-    throw new Error("מזהה משתמש חסר");
+    throw new Error(MESSAGES.USER.MISSING_USER_ID);
   }
 
   if (!mongoose.Types.ObjectId.isValid(userId)) {
-    throw new Error("מזהה משתמש לא תקין");
+    throw new Error(MESSAGES.USER.INVALID_ID);
   }
 
   if (!data || Object.keys(data).length === 0) {
-    throw new Error("לא נשלחו נתונים לעדכון");
+    throw new Error(MESSAGES.COMMON.NO_DATA_TO_UPDATE);
   }
 
   // שדות שאסור לעדכן
@@ -178,7 +179,7 @@ export const updateUserService = async (userId, data) => {
   // ולידציית אימייל
   if (data.email) {
     if (!isValidEmail(data.email)) {
-      throw new Error("כתובת האימייל אינה תקינה");
+      throw new Error(MESSAGES.USER.INVALID_EMAIL);
     }
 
     const emailExists = await User.findOne({
@@ -187,12 +188,12 @@ export const updateUserService = async (userId, data) => {
     });
 
     if (emailExists) {
-      throw new Error("האימייל כבר נמצא בשימוש");
+      throw new Error(MESSAGES.USER.EMAIL_EXISTS);
     }
   }
 
   if (data.phone && !isValidPhone(data.phone)) {
-    throw new Error("מספר הטלפון אינו תקין");
+    throw new Error(MESSAGES.USER.INVALID_PHONE);
   }
 
   const user = await User.findByIdAndUpdate(userId, data, { new: true }).select(
@@ -200,7 +201,7 @@ export const updateUserService = async (userId, data) => {
   );
 
   if (!user) {
-    throw new Error("משתמש לא נמצא");
+    throw new Error(MESSAGES.USER.NOT_FOUND);
   }
 
   return user;
@@ -209,11 +210,11 @@ export const updateUserService = async (userId, data) => {
 //DELETE USER
 export const deleteUserService = async (userId) => {
   if (!mongoose.Types.ObjectId.isValid(userId)) {
-    throw new Error("מזהה משתמש לא תקין");
+    throw new Error(MESSAGES.USER.INVALID_ID);
   }
 
   const user = await User.findById(userId);
-  if (!user) throw new Error("משתמש לא נמצא");
+  if (!user) throw new Error(MESSAGES.USER.NOT_FOUND);
 
   // בדיקות לפי סוג משתמש
   if (user.role === "Student") {
@@ -222,7 +223,7 @@ export const deleteUserService = async (userId) => {
       user.status = "Inactive";
       await user.save();
       return {
-        message: "סטודנט לא נמחק כי יש לו הרשמות, הסטטוס הועבר ל'לא פעיל'",
+        message: MESSAGES.USER.STUDENT_HAS_REGISTRATIONS,
       };
     }
   }
@@ -236,7 +237,7 @@ export const deleteUserService = async (userId) => {
       user.status = "Inactive";
       await user.save();
       return {
-        message: "מדריך לא נמחק כי יש לו קורסים, הסטטוס הועבר ל'לא פעיל'",
+        message: MESSAGES.USER.INSTRUCTOR_HAS_COURSES,
       };
     }
   }
@@ -251,14 +252,14 @@ export const deleteUserService = async (userId) => {
       await user.save();
       return {
         message:
-          "בית ספר לא נמחק כי יש לו קורסים פעילים, הסטטוס הועבר ל'לא פעיל'",
+          MESSAGES.USER.SCHOOL_HAS_COURSES,
       };
     }
   }
 
   // אין קשרים – אפשר למחוק
   await user.deleteOne();
-  return { message: "המשתמש נמחק בהצלחה" };
+  return { message: MESSAGES.USER.DELETED_SUCCESS };
 };
 
 //UPDATE USER ROLE
@@ -266,7 +267,7 @@ export const updateUserRoleService = async (userId, role) => {
   const allowedRoles = ["Student", "Instructor", "School", "Admin"];
 
   if (!allowedRoles.includes(role)) {
-    throw new Error("תפקיד לא חוקי");
+    throw new Error(MESSAGES.USER.INVALID_ROLE);
   }
 
   const user = await User.findByIdAndUpdate(
@@ -276,7 +277,7 @@ export const updateUserRoleService = async (userId, role) => {
   ).select("-password");
 
   if (!user) {
-    throw new Error("משתמש לא נמצא");
+    throw new Error(MESSAGES.USER.NOT_FOUND);
   }
 
   return user;
