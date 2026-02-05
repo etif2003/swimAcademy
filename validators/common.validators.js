@@ -27,4 +27,13 @@ export const validateEnum = (value, allowed, message) => {
   if (!allowed.includes(value)) {
     throw new Error(message);
   }
+
 };
+
+export const validatePhone = (phone) => {
+  const regex = /^05\d{8}$/;
+  if (!regex.test(phone)) {
+    throw new Error(MESSAGES.USER.INVALID_PHONE);
+  }
+};
+
