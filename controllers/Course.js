@@ -23,10 +23,7 @@ export const createCourseController = async (req, res) => {
     const course = await createCourseService({
       ...req.body,
       creatorId: req.user._id,
-      creatorType:
-        req.user.role === "Instructor"
-          ? "Instructor"
-          : "School",
+      creatorType: req.user.role,
     });
 
     serverResponse(res, 201, course);
@@ -34,6 +31,7 @@ export const createCourseController = async (req, res) => {
     serverResponse(res, 400, { message: err.message });
   }
 };
+
 
   //GET ALL COURSES
 

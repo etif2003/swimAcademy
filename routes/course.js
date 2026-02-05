@@ -22,7 +22,7 @@ router.get("/:id", getCourseByIdController);
 
 // קורסים לפי יוצר (Instructor / School)
 router.get(
-  "/by-creator/:creatorType/:creatorId",
+  "/by-creator/type/:creatorType/id/:creatorId",
   getCoursesByCreatorController
 );
 
