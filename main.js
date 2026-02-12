@@ -10,6 +10,9 @@ import instructorRoutes from "./routes/instructor.js";
 import schoolRoutes from "./routes/school.js";
 import registrationRoutes from "./routes/registration.js";
 import schoolInstructorRoutes from "./routes/school-instructor.js";
+import uploadRoutes from "./routes/upload.js";
+
+
 
 
 const port = process.env.PORT || 4000;
@@ -27,6 +30,7 @@ app.use("/api/schools", schoolRoutes);
 app.use("/api/registrations", registrationRoutes);
 app.use("/api/school-instructors", schoolInstructorRoutes);
 
+app.use("/api/upload", uploadRoutes);
 
 
 // -------------------- START SERVER -------------------- //
