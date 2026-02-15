@@ -19,7 +19,7 @@ router.post("/",authMiddleware, createSchoolController);
 router.get("/by-owner/:ownerId",authMiddleware, getSchoolByOwnerController);
 
 // שליפת בית ספר לפי ID
-router.get("/:id",authMiddleware, getSchoolByIdController);
+router.get("/:id", getSchoolByIdController);
 
 // כל בתי הספר
 router.get("/", getAllSchoolsController);

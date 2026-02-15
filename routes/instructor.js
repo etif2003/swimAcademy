@@ -22,7 +22,7 @@ router.post("/", authMiddleware, createInstructorController);
 router.get("/by-user/:userId", authMiddleware, getInstructorByUserController);
 
 // שליפת פרופיל מדריך לפי instructorId
-router.get("/:id", authMiddleware, getInstructorByIdController);
+router.get("/:id", getInstructorByIdController);
 
 // כל המדריכים
 router.get("/", getAllInstructorsController);
