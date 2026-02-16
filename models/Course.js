@@ -1,8 +1,6 @@
 import mongoose from "mongoose";
 import { AREAS } from "../utils/constants/areas.js";
 
-
-
 const courseSchema = new mongoose.Schema(
   {
     title: {
@@ -25,19 +23,20 @@ const courseSchema = new mongoose.Schema(
 
     category: {
       type: String,
-      enum: ["Learning", "Training", "Therapy"],
+      enum: ["All", "Learning", "Training", "Therapy"],
       required: true,
     },
 
     targetAudience: {
       type: String,
-      enum: ["Children", "Teens", "Adults", "Seniors"],
+      enum: ["All", "Children", "Teens", "Adults", "Seniors"],
       required: true,
     },
 
     level: {
       type: String,
-      enum: ["Beginner", "Advanced", "Professional"],
+      enum: ["All", "Beginner", "Advanced", "Professional"],
+      required: true,
     },
 
     image: {
@@ -61,7 +60,7 @@ const courseSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["Draft", "Active", "Inactive", "Completed"],
-      default: "Draft",
+      default: "Active",
     },
 
     durationWeeks: {
