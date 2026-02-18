@@ -5,6 +5,7 @@ import {
   getCoursesByCreatorService,
   updateCourseService,
   deleteCourseService,
+  getMyCoursesService,
 } from "../services/Course.js";
 
 import { serverResponse } from "../utils/server-response.js";
@@ -57,6 +58,19 @@ export const getCourseByIdController = async (req, res) => {
     serverResponse(res, 404, { message: err.message });
   }
 };
+
+
+export const getMyCoursesController = async (req, res) => {
+  try {
+    const courses = await getMyCoursesService(req.user);
+    serverResponse(res, 200, courses);
+  } catch (err) {
+    serverResponse(res, 400, { message: err.message });
+  }
+};
+
+
+
 
    //GET COURSES BY CREATOR
 export const getCoursesByCreatorController = async (req, res) => {

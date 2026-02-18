@@ -6,6 +6,7 @@ import {
   getCoursesByCreatorController,
   updateCourseController,
   deleteCourseController,
+  getMyCoursesController,
 } from "../controllers/Course.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
@@ -18,8 +19,15 @@ router.post("/",authMiddleware, createCourseController);
 // כל הקורסים
 router.get("/", getAllCoursesController);
 
+
+// קורסים שלי לפי משתמש מחובר (Instructor / School)
+router.get("/my-courses", authMiddleware, getMyCoursesController);
+
+
 // קורס לפי ID
 router.get("/:id", getCourseByIdController);
+
+
 
 // קורסים לפי יוצר (Instructor / School)
 router.get(

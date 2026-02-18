@@ -119,6 +119,32 @@ export const getCourseByIdService = async (courseId) => {
   return course;
 };
 
+
+
+export const getMyCoursesService = async (user) => {
+  let creatorId;
+
+  if (user.role === "Instructor") {
+    const instructor = await Instructor.findOne({ user: user._id });
+    if (!instructor) throw new Error("פרופיל מדריך לא נמצא");
+
+    creatorId = instructor._id;
+  }
+
+  if (user.role === "School") {
+    const school = await School.findOne({ owner: user._id });
+    if (!school) throw new Error("בית ספר לא נמצא");
+
+    creatorId = school._id;
+  }
+
+  return Course.find({
+    createdBy: creatorId,
+    createdByModel: user.role,
+  });
+};
+
+
 // =======================
 // GET COURSES BY CREATOR
 // =======================
