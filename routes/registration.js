@@ -18,7 +18,7 @@ router.post("/", createRegistrationController);
 
 // כל ההרשמות של משתמש
 router.get(
-  "/by-user/:userId",
+  "/by-user/:userId",authMiddleware,
   getRegistrationsByUserController
 );
 
